@@ -5,14 +5,21 @@ import "@openzeppelin/contracts@4.7.3/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts@4.7.3/access/Ownable.sol";
 import "@openzeppelin/contracts@4.7.3/security/Pausable.sol";
 import "@openzeppelin/contracts@4.7.3/token/ERC1155/extensions/ERC1155Burnable.sol";
+import "@openzeppelin/contracts@4.7.3/token/ERC1155/extensions/ERC1155Supply.sol";
 
 /// @custom:security-contact contact@dcap.finance
-contract DCAPAccess is ERC1155, Ownable, Pausable, ERC1155Burnable {
+contract DCAPAccess is
+    ERC1155,
+    Ownable,
+    Pausable,
+    ERC1155Burnable,
+    ERC1155Supply
+{
     uint256 public constant LEVEL_1_ID = 1;
     uint256 public constant LEVEL_2_ID = 2;
     uint256 public constant LEVEL_3_ID = 3;
 
-    constructor() ERC1155("https://dcap.finance/api/nft/{id}") {}
+    constructor() ERC1155("https://staging.dcap.finance/nft_level_{id}.json") {}
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
@@ -48,7 +55,7 @@ contract DCAPAccess is ERC1155, Ownable, Pausable, ERC1155Burnable {
         address account,
         uint256 id,
         uint256 value
-    ) public virtual override onlyOwner {
+    ) public override onlyOwner {
         _burn(account, id, value);
     }
 
@@ -56,7 +63,7 @@ contract DCAPAccess is ERC1155, Ownable, Pausable, ERC1155Burnable {
         address account,
         uint256[] memory ids,
         uint256[] memory values
-    ) public virtual override onlyOwner {
+    ) public override onlyOwner {
         _burnBatch(account, ids, values);
     }
 
@@ -67,7 +74,7 @@ contract DCAPAccess is ERC1155, Ownable, Pausable, ERC1155Burnable {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal override whenNotPaused {
+    ) internal override(ERC1155, ERC1155Supply) whenNotPaused {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 }
